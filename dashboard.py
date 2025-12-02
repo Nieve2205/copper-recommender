@@ -1,9 +1,18 @@
 """
-DASHBOARD INTERACTIVO - SISTEMA KNN PARA TRADING DE COBRE
-===========================================================
+DASHBOARD INTERACTIVO AVANZADO - SISTEMA KNN PARA TRADING DE COBRE
+====================================================================
 
-Dashboard web interactivo con Streamlit para visualizar resultados
-y recomendaciones del sistema de trading.
+Dashboard web interactivo con múltiples fuentes de datos, análisis avanzado
+y técnicas de Business Intelligence de nivel profesional.
+
+Características:
+- Integración multi-fuente (Yahoo Finance, World Bank, FRED, LME)
+- Análisis técnico y fundamental
+- Simulación Monte Carlo
+- Backtesting de estrategias
+- Análisis de riesgo (VaR/CVaR)
+- Análisis de escenarios
+- Optimización de cartera
 """
 
 import streamlit as st
@@ -19,6 +28,16 @@ import sys
 from data.data_collector import DataCollector
 from data.data_processor import DataProcessor
 from models.knn_model import KNNTradingModel
+
+# Importar módulos avanzados
+try:
+    from data.advanced_sources import AdvancedDataSources
+    from data.advanced_analytics import AdvancedAnalytics
+    ADVANCED_FEATURES = True
+except:
+    ADVANCED_FEATURES = False
+    st.warning("⚠️ Módulos avanzados no disponibles. Algunas características estarán limitadas.")
+
 from config.settings import (
     COPPER_SYMBOL, K_NEIGHBORS, TARGET_PRICE, 
     MIN_VOLUME_MILLIONS, CONFIDENCE_THRESHOLD
