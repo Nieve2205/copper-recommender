@@ -558,7 +558,7 @@ El trading conlleva riesgos significativos. Los resultados pasados no garantizan
 - **K-Nearest Neighbors**: [scikit-learn KNN Documentation](https://scikit-learn.org/stable/modules/neighbors.html)
 - **Análisis Técnico**: [Technical Analysis Library](https://technical-analysis-library-in-python.readthedocs.io/)
 - **Yahoo Finance**: [yfinance Documentation](https://pypi.org/project/yfinance/)
-
+ 
 ---
 
 **Desarrollado con ❤️ para el análisis cuantitativo del mercado de cobre**
