@@ -423,6 +423,62 @@ def main():
             height=400
         )
         st.plotly_chart(fig_probs, use_container_width=True)
+        
+        # 🆕 ANÁLISIS DE SENTIMIENTO EN TIEMPO REAL
+        st.divider()
+        st.subheader("📰 Análisis de Sentimiento del Mercado (Tiempo Real)")
+        
+        # Obtener sentimiento
+        if ADVANCED_FEATURES:
+            with st.spinner('🔍 Analizando noticias y redes sociales...'):
+                sources = AdvancedDataSources()
+                sentiment_data = sources.get_market_sentiment()
+            
+            col1, col2, col3, col4 = st.columns(4)
+            
+            with col1:
+                sentiment_score = sentiment_data.get('score', 0)
+                sentiment_emoji = "😊" if sentiment_score > 0.1 else "😐" if sentiment_score > -0.1 else "😟"
+                st.metric("Sentimiento General", f"{sentiment_emoji} {sentiment_score:.3f}")
+            
+            with col2:
+                st.metric("Clasificación", sentiment_data.get('classification', 'N/A'))
+            
+            with col3:
+                st.metric("Artículos Analizados", f"{sentiment_data.get('news_count', 0)}")
+            
+            with col4:
+                confidence = sentiment_data.get('confidence', 0)
+                st.metric("Confianza", f"{confidence:.1%}")
+            
+            # Mostrar fuentes
+            if 'sources' in sentiment_data and sentiment_data['sources']:
+                st.markdown("**Fuentes Analizadas:**")
+                sources_info = sentiment_data['sources']
+                
+                cols = st.columns(len(sources_info))
+                for idx, (source_name, source_data) in enumerate(sources_info.items()):
+                    with cols[idx]:
+                        st.info(f"""
+                        **{source_name.upper()}**  
+                        Artículos: {source_data.get('count', 0)}  
+                        Sentimiento: {source_data.get('avg_sentiment', 0):.3f}
+                        """)
+            
+            # Trending Topics
+            if 'trending_topics' in sentiment_data:
+                st.markdown("**🔥 Temas Trending:**")
+                for topic in sentiment_data['trending_topics'][:5]:
+                    st.markdown(f"- {topic}")
+            
+            # Indicador de fuente de datos
+            data_source = sentiment_data.get('data_source', 'unknown')
+            if data_source == 'real':
+                st.success("✅ Datos de sentimiento en tiempo real desde múltiples fuentes")
+            elif data_source == 'simulated':
+                st.info("ℹ️ Datos de sentimiento simulados (instala dependencias NLP para datos reales)")
+        else:
+            st.info("ℹ️ Activa módulos avanzados para análisis de sentimiento en tiempo real")
     
     with tab3:
         st.subheader("Verificación de Condiciones de Trading")

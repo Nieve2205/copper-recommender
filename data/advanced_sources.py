@@ -8,6 +8,7 @@ Integración con múltiples fuentes de datos confiables:
 - FRED (Federal Reserve Economic Data)
 - LME (London Metal Exchange) via web scraping
 - News API (noticias de mercado)
+- Sentiment Analysis (análisis de sentimiento en tiempo real) 🆕
 """
 
 import requests
@@ -15,11 +16,25 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 import logging
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 import json
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Importar el analizador de sentimiento
+try:
+    import sys
+    from pathlib import Path
+    # Agregar directorio analytics al path
+    analytics_path = Path(__file__).parent.parent / 'analytics'
+    sys.path.insert(0, str(analytics_path))
+    from analytics.sentiment_analysis import SentimentAnalyzer
+    SENTIMENT_AVAILABLE = True
+except ImportError:
+    SENTIMENT_AVAILABLE = False
+    logger.warning("⚠️ Sentiment Analyzer no disponible")
 
 
 class AdvancedDataSources:
@@ -29,12 +44,34 @@ class AdvancedDataSources:
     
     def __init__(self):
         """Inicializa las conexiones a APIs"""
-        # APIs gratuitas (puedes agregar tus propias keys)
-        self.alpha_vantage_key = "demo"  # Reemplazar con key real
-        self.fred_key = "demo"
-        self.news_api_key = "demo"
+        # APIs gratuitas - Leer desde variables de entorno o usar 'demo'
+        self.alpha_vantage_key = os.getenv('ALPHA_VANTAGE_KEY')
+        self.fred_key = os.getenv('FRED_API_KEY')
+        self.news_api_key = os.getenv('NEWS_API_KEY')
         
-        logger.info("🌐 AdvancedDataSources inicializado")
+        # Mostrar estado de las APIs
+        api_status = []
+        if self.news_api_key != 'demo':
+            api_status.append("NewsAPI ✅")
+        else:
+            api_status.append("NewsAPI ⚠️ (usando demo)")
+            
+        if self.alpha_vantage_key != 'demo':
+            api_status.append("Alpha Vantage ✅")
+            
+        if self.fred_key != 'demo':
+            api_status.append("FRED ✅")
+        
+        if api_status:
+            logger.info(f"🔑 APIs configuradas: {', '.join(api_status)}")
+        
+        # Inicializar analizador de sentimiento 🆕
+        if SENTIMENT_AVAILABLE:
+            self.sentiment_analyzer = SentimentAnalyzer(news_api_key=self.news_api_key)
+            logger.info("🌐 AdvancedDataSources inicializado con análisis de sentimiento")
+        else:
+            self.sentiment_analyzer = None
+            logger.info("🌐 AdvancedDataSources inicializado (sin análisis de sentimiento)")
     
     def get_world_bank_copper_data(self) -> pd.DataFrame:
         """
@@ -140,35 +177,87 @@ class AdvancedDataSources:
     
     def get_market_sentiment(self) -> Dict:
         """
-        Analiza el sentimiento del mercado basado en noticias
+        Analiza el sentimiento del mercado basado en noticias REALES en tiempo real 🆕
         
         Returns:
-            Diccionario con análisis de sentimiento
+            Diccionario con análisis de sentimiento completo
         """
         try:
-            logger.info("📰 Analizando sentimiento del mercado...")
+            logger.info("📰 Analizando sentimiento del mercado en tiempo real...")
             
-            # Simulación de análisis de sentimiento
-            # En producción: usar News API + NLP para analizar noticias
-            sentiment = {
-                'score': np.random.uniform(-1, 1),  # -1 (negativo) a 1 (positivo)
-                'news_count': np.random.randint(50, 200),
-                'positive_ratio': np.random.uniform(0.3, 0.7),
-                'keywords': ['copper', 'demand', 'china', 'electric vehicles', 'mining'],
-                'trending_topics': [
-                    'Green energy transition',
-                    'China manufacturing',
-                    'Supply constraints',
-                    'Infrastructure spending'
-                ]
-            }
+            if not SENTIMENT_AVAILABLE or not self.sentiment_analyzer:
+                logger.warning("⚠️ Sentiment Analyzer no disponible, usando datos simulados")
+                # Simulación de análisis de sentimiento
+                sentiment = {
+                    'score': np.random.uniform(-1, 1),
+                    'news_count': np.random.randint(50, 200),
+                    'positive_ratio': np.random.uniform(0.3, 0.7),
+                    'keywords': ['copper', 'demand', 'china', 'electric vehicles', 'mining'],
+                    'trending_topics': [
+                        'Green energy transition',
+                        'China manufacturing',
+                        'Supply constraints',
+                        'Infrastructure spending'
+                    ],
+                    'data_source': 'simulated'
+                }
+            else:
+                # Análisis REAL de sentimiento
+                analysis = self.sentiment_analyzer.analyze_market_sentiment(days=7)
+                
+                sentiment = {
+                    'score': analysis.get('overall_sentiment', 0),
+                    'classification': analysis.get('classification', 'Neutral'),
+                    'news_count': analysis.get('total_articles', 0),
+                    'positive_ratio': analysis.get('positive_ratio', 0.5),
+                    'negative_ratio': analysis.get('negative_ratio', 0.5),
+                    'confidence': analysis.get('confidence', 0),
+                    'sources': analysis.get('sources', {}),
+                    'timestamp': analysis.get('timestamp', datetime.now()),
+                    'data_source': 'real',
+                    'trending_topics': self._extract_trending_from_sources(analysis.get('sources', {}))
+                }
             
-            logger.info(f"✅ Sentimiento: {sentiment['score']:.2f}")
+            logger.info(f"✅ Sentimiento: {sentiment.get('score', 0):.2f} ({sentiment.get('classification', 'N/A')})")
             return sentiment
             
         except Exception as e:
             logger.error(f"❌ Error en análisis de sentimiento: {e}")
-            return {}
+            return {
+                'score': 0,
+                'classification': 'Unknown',
+                'news_count': 0,
+                'data_source': 'error'
+            }
+    
+    def _extract_trending_from_sources(self, sources: Dict) -> List[str]:
+        """
+        Extrae temas trending de las fuentes analizadas
+        
+        Args:
+            sources: Diccionario con datos de fuentes
+            
+        Returns:
+            Lista de temas trending
+        """
+        trending = []
+        
+        # Analizar fuentes disponibles
+        if sources:
+            for source_name, source_data in sources.items():
+                if 'count' in source_data and source_data['count'] > 0:
+                    trending.append(f"{source_name}: {source_data['count']} menciones")
+        
+        # Temas comunes en el mercado de cobre
+        common_topics = [
+            'Electric Vehicle Demand',
+            'China Manufacturing',
+            'Supply Chain Issues',
+            'Green Energy Transition',
+            'Infrastructure Investment'
+        ]
+        
+        return trending[:3] if trending else common_topics[:3]
     
     def get_china_manufacturing_pmi(self) -> float:
         """

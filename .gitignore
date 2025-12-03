@@ -1,0 +1,14 @@
+# Ignorar archivo .env
+.env
+
+# Ignorar otros archivos sensibles
+*.env.*
+
+# Ignorar directorios específicos
+node_modules/
+dist/
+build/
+
+# Ignorar otros archivos generados
+*.log
+*.tmp
