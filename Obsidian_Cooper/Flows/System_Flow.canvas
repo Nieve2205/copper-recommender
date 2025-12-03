@@ -1,0 +1,36 @@
+{
+	"nodes":[
+		{"id":"config","type":"text","text":"## ⚙️ CONFIGURACIÓN\n\n**config/settings.py**\n\n- K_NEIGHBORS = 50\n- TARGET_PRICE = 8500\n- CONFIDENCE_THRESHOLD = 0.70\n- Símbolos, períodos, features","x":-440,"y":-100,"width":280,"height":220,"color":"4"},
+		{"id":"processor","type":"text","text":"## 🔨 DATA PROCESSOR\n\n**data/data_processor.py**\n\n**Pipeline:**\n1. `clean_data()`: Limpieza y normalización\n2. `create_features()`: 24 features técnicas\n3. `create_target()`: Variable objetivo (COMPRA/HOLD/VENTA)\n4. `prepare_training_data()`: X, y\n5. `split_train_test()`: 80/20 split\n\n**Output:** X_train, X_test, y_train, y_test","x":260,"y":-180,"width":280,"height":520,"color":"2"},
+		{"id":"features","type":"text","text":"## 🎯 FEATURES (24)\n\n**Categorías:**\n\n1. **Precio:** close, momentum\n2. **Volumen:** volume, cambios\n3. **Medias:** SMA, EMA\n4. **Indicadores:** RSI, MACD, BB, ATR\n5. **Ratios:** price_to_sma\n\n**Normalización:** MinMaxScaler","x":600,"y":-100,"width":280,"height":320,"color":"3"},
+		{"id":"knn_model","type":"text","text":"## 🤖 KNN MODEL\n\n**models/knn_model.py**\n\n**Algoritmo:** K-Nearest Neighbors\n- K = 50 vecinos\n- Weights = 'distance'\n- Metric = 'euclidean'\n\n**Métodos:**\n- `train()`: Entrena con X_train, y_train\n- `predict()`: Predicción de clase\n- `predict_proba()`: Probabilidades\n- `evaluate()`: Métricas de evaluación\n- `cross_validate()`: 5-fold CV\n\n**Output:** Modelo entrenado","x":960,"y":-180,"width":300,"height":420,"color":"6"},
+		{"id":"training","type":"text","text":"## 🎓 ENTRENAMIENTO\n\n**Proceso:**\n1. Fit KNN con datos de entrenamiento\n2. Calcular métricas:\n   - Accuracy\n   - Precision\n   - Recall\n   - F1-Score\n3. Validación cruzada (5-fold)\n\n**Resultado:** Modelo optimizado","x":1320,"y":-140,"width":280,"height":340,"color":"6"},
+		{"id":"evaluation","type":"text","text":"## 📊 EVALUACIÓN\n\n**Test Set:**\n- Predicciones en X_test\n- Comparación con y_test\n\n**Métricas:**\n- Accuracy\n- Precision\n- Recall\n- F1-Score\n- Confusion Matrix\n- Classification Report","x":1320,"y":260,"width":280,"height":320,"color":"2"},
+		{"id":"prediction","type":"text","text":"## 🎯 PREDICCIÓN ACTUAL\n\n**predict_next():**\n1. Toma datos actuales (último registro)\n2. Busca K=50 vecinos similares\n3. Analiza qué pasó después de ellos\n4. Calcula probabilidades por clase\n5. Genera señal con confianza\n\n**Output:**\n- Signal: COMPRA/VENTA/HOLD\n- Confidence: 0-100%\n- Probabilities: {venta, hold, compra}\n- Recommendation: EJECUTAR/ESPERAR","x":1660,"y":-180,"width":300,"height":420,"color":"5"},
+		{"id":"signal_logic","type":"text","text":"## 🚦 LÓGICA DE SEÑALES\n\n**Condiciones:**\n\n```python\nif confidence >= 70% and prediction == 1:\n    COMPRA (📈)\nelif confidence >= 70% and prediction == -1:\n    VENTA (📉)\nelse:\n    HOLD (⏸️)\n```\n\n**Factores:**\n- Confianza del modelo\n- Precio vs TARGET_PRICE\n- Volumen adecuado\n- RSI no extremo","x":2020,"y":-140,"width":320,"height":380,"color":"5"},
+		{"id":"visualization","type":"text","text":"## 📈 VISUALIZACIÓN\n\n**utils/visualizer.py**\n\n**Gráficos (Matplotlib/Plotly):**\n1. Precio + SMA + Bollinger Bands\n2. RSI + MACD + Volumen\n3. Predicciones en histórico\n4. Confusion Matrix\n\n**Dashboard (Streamlit):**\n- Gauge de confianza\n- Métricas del modelo\n- Análisis técnico interactivo\n- Condiciones de trading","x":2020,"y":280,"width":320,"height":380,"color":"1"},
+		{"id":"persistence","type":"text","text":"## 💾 PERSISTENCIA\n\n**Guardado:**\n- Modelo: `saved_models/*.pkl`\n- Logs: `logs/*.log`\n- Cache: `data_cache/`\n\n**Modelo guardado incluye:**\n- Objeto KNN entrenado\n- Metadatos (K, weights, etc.)\n- Métricas de entrenamiento\n- Timestamp","x":1660,"y":280,"width":300,"height":340,"color":"4"},
+		{"id":"output","type":"text","text":"## 📤 OUTPUT FINAL\n\n**CLI (main.py):**\n✅ Tablas con métricas\n✅ Señal de trading coloreada\n✅ 4 gráficos interactivos\n✅ Recomendación final\n\n**Dashboard (dashboard.py):**\n✅ Interfaz web interactiva\n✅ Actualización en tiempo real\n✅ Visualizaciones Plotly\n✅ Métricas detalladas","x":2400,"y":-100,"width":320,"height":380,"color":"5"},
+		{"id":"user_action","type":"text","text":"## 👤 ACCIÓN DEL USUARIO\n\n**Decisión basada en:**\n\n1. Señal del modelo\n2. Nivel de confianza\n3. Análisis técnico\n4. Contexto fundamental\n5. Gestión de riesgo\n\n**⚠️ DISCLAIMER:**\nSolo para fines educativos\nNo es asesoramiento financiero","x":2780,"y":-80,"width":300,"height":340,"color":"6"},
+		{"id":"start","type":"text","text":"## 🚀 INICIO\n\n**Usuario ejecuta:**\n- `python main.py` (CLI)\n- `streamlit run dashboard.py` (Web)","x":-800,"y":-120,"width":280,"height":260,"color":"5"},
+		{"id":"collector","type":"text","text":"## 📥 DATA COLLECTOR\n\n**data/data_collector.py**\n\n**Funciones:**\n- `get_historical_data()`: Descarga de Yahoo Finance\n- `get_realtime_data()`: Datos en tiempo real\n- `check_data_quality()`: Validación\n\n**Output:** DataFrame con precio, volumen, OHLC","x":-80,"y":-180,"width":280,"height":420,"color":"1"},
+		{"id":"indicators","type":"text","text":"## 📊 TECHNICAL INDICATORS\n\n**utils/indicators.py**\n\n**Cálculos:**\n- RSI (14 períodos)\n- MACD (12/26/9)\n- Bollinger Bands (20, 2σ)\n- ATR (14)\n- SMA (20/50/200)\n- EMA (12/26)\n\n**Input:** Series de precios\n**Output:** Indicadores calculados","x":260,"y":520,"width":280,"height":340,"color":"3"}
+	],
+	"edges":[
+		{"id":"e1","fromNode":"start","fromSide":"right","toNode":"config","toSide":"left","color":"5"},
+		{"id":"e2","fromNode":"config","fromSide":"right","toNode":"collector","toSide":"left","color":"4"},
+		{"id":"e3","fromNode":"collector","fromSide":"right","toNode":"processor","toSide":"left","color":"1"},
+		{"id":"e4","fromNode":"processor","fromSide":"bottom","toNode":"indicators","toSide":"top","color":"2","label":"usa"},
+		{"id":"e5","fromNode":"processor","fromSide":"right","toNode":"features","toSide":"left","color":"2"},
+		{"id":"e6","fromNode":"features","fromSide":"right","toNode":"knn_model","toSide":"left","color":"3"},
+		{"id":"e7","fromNode":"knn_model","fromSide":"right","toNode":"training","toSide":"left","color":"6"},
+		{"id":"e8","fromNode":"training","fromSide":"bottom","toNode":"evaluation","toSide":"top","color":"6"},
+		{"id":"e9","fromNode":"training","fromSide":"right","toNode":"prediction","toSide":"left","color":"6"},
+		{"id":"e10","fromNode":"prediction","fromSide":"right","toNode":"signal_logic","toSide":"left","color":"5"},
+		{"id":"e11","fromNode":"prediction","fromSide":"bottom","toNode":"persistence","toSide":"top","color":"5"},
+		{"id":"e12","fromNode":"signal_logic","fromSide":"bottom","toNode":"visualization","toSide":"top","color":"5"},
+		{"id":"e13","fromNode":"signal_logic","fromSide":"right","toNode":"output","toSide":"left","color":"5"},
+		{"id":"e14","fromNode":"visualization","fromSide":"right","toNode":"output","toSide":"bottom","color":"1"},
+		{"id":"e15","fromNode":"output","fromSide":"right","toNode":"user_action","toSide":"left","color":"5"}
+	]
+}
